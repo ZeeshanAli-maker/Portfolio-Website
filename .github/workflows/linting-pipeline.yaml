@@ -1,17 +1,37 @@
-name: linting-pipeline
+name: Linting Pipeline
 
-on: push
+on:
+  push:
+    branches:
+      - develop  # Trigger on push to the develop branch
+  pull_request:
+    branches:
+      - develop  # Trigger on pull request to the develop branch
 
 jobs:
-  super-lint:
-    name: Lint code base
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+  lint:
+    runs-on: ubuntu-latest  # Use the latest Ubuntu runner
 
-      - name: Run Super-Linter
-        uses: github/super-linter@v4
-        env:
-          DEFAULT_BRANCH: main
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+    # Check out the repository code
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    # Set up Node.js environment for linting
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '16'  # Use Node.js version 16 (can be updated to your project version)
+
+    # Install dependencies (HTMLHint and Stylelint as dev dependencies)
+    - name: Install dependencies
+      run: |
+        npm install htmlhint stylelint --save-dev  # Install HTMLHint and Stylelint as dev dependencies
+
+    # Run HTMLHint on .html files
+    - name: Run HTMLHint
+      run: npx htmlhint "**/*.html"  # Lint all HTML files
+
+    # Run Stylelint on .css files
+    - name: Run Stylelint
+      run: npx stylelint "**/*.css"  # Lint all CSS files
